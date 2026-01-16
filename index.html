@@ -83,10 +83,7 @@ function parseInitData(str) {
 const initData = tg.initData;
 const data = parseInitData(initData);
 
-if (!allowedChatIds.includes(Number(data['chat.id']))) {
-    document.body.innerHTML = "<h2>❌ Доступ запрещён</h2>";
-    tg.close();
-} else {
+
     // Доступ разрешён — загружаем бронирования из Django
     fetch("http://127.0.0.1:8000/api/bookings/")
         .then(res => res.json())
@@ -107,7 +104,7 @@ if (!allowedChatIds.includes(Number(data['chat.id']))) {
             });
         })
         .catch(err => console.error("Ошибка загрузки бронирований:", err));
-}
+
 </script>
 
 
