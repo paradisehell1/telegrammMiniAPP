@@ -64,45 +64,52 @@
 </div>
 
 <script>
-    const tg = Telegram.WebApp;
-    tg.expand();
+const tg = Telegram.WebApp;
+tg.expand();
 
-    // Список разрешённых chat_id
-    const allowedChatIds = [438913614]; // замените на свои
+// Список разрешённых chat_id
+const allowedChatIds = [123456789, 987654321];
 
-    // Парсим initData
-    function parseInitData(str) {
-        const obj = {};
-        str.split("&").forEach(pair => {
-            const [key, value] = pair.split("=");
-            obj[key] = decodeURIComponent(value || "");
-        });
-        return obj;
-    }
+// Парсим initData
+function parseInitData(str) {
+    const obj = {};
+    str.split("&").forEach(pair => {
+        const [key, value] = pair.split("=");
+        obj[key] = decodeURIComponent(value || "");
+    });
+    return obj;
+}
 
-    const initData = tg.initData;
-    const data = parseInitData(initData);
+const initData = tg.initData;
+const data = parseInitData(initData);
 
-    if (allowedChatIds.includes(Number(data['chat.id']))) {
-        // Разрешено
-        document.getElementById("booking-card").classList.remove("hidden");
-        document.getElementById("buttons").classList.remove("hidden");
-    } else {
-        // Доступ запрещён
-        document.getElementById("access-denied").classList.remove("hidden");
-        tg.close(); // опционально можно закрыть Web App
-    }
-
-    function confirmBooking() {
-        alert("Бронь подтверждена (пока мок)");
-        tg.close();
-    }
-
-    function cancelBooking() {
-        alert("Бронь отменена (пока мок)");
-        tg.close();
-    }
+if (!allowedChatIds.includes(Number(data['chat.id']))) {
+    document.body.innerHTML = "<h2>❌ Доступ запрещён</h2>";
+    tg.close();
+} else {
+    // Доступ разрешён — загружаем бронирования из Django
+    fetch("http://127.0.0.1:8000/api/bookings/")
+        .then(res => res.json())
+        .then(bookings => {
+            const container = document.getElementById("bookings-container");
+            bookings.forEach(b => {
+                const card = document.createElement("div");
+                card.className = "card";
+                card.innerHTML = `
+                    <div class="row"><b>Имя:</b> ${b.first_name} ${b.last_name}</div>
+                    <div class="row"><b>Телефон:</b> ${b.phone}</div>
+                    <div class="row"><b>Гостей:</b> ${b.guests}</div>
+                    <div class="row"><b>Зал:</b> ${b.hall}</div>
+                    <div class="row"><b>Комментарии:</b> ${b.comments}</div>
+                    <div class="row"><b>Создано:</b> ${b.created_at}</div>
+                `;
+                container.appendChild(card);
+            });
+        })
+        .catch(err => console.error("Ошибка загрузки бронирований:", err));
+}
 </script>
+
 
 </body>
 </html>
