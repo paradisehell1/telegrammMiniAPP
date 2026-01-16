@@ -83,13 +83,7 @@ const initData = tg.initData;
 const data = parseInitData(initData);
 
 // Проверяем наличие initData и разрешённый chat_id
-if (!initData) {
-    document.body.innerHTML = "<h2>❌ Откройте миниапп через Telegram</h2>";
-    tg.close();
-} else if (!allowedChatIds.includes(Number(data['chat.id']))) {
-    document.body.innerHTML = "<h2>❌ Доступ запрещён</h2>";
-    tg.close();
-} else {
+
     // Доступ разрешён — загружаем бронирования через бота
     fetch("https://your-bot-server.com/get_bookings", { // <-- тут URL бота
         method: "POST",
@@ -127,7 +121,7 @@ if (!initData) {
         console.error("Ошибка загрузки бронирований:", err);
         document.body.innerHTML = "<h2>❌ Ошибка загрузки данных</h2>";
     });
-}
+
 
 // Функции для кнопок
 function confirmBooking() {
