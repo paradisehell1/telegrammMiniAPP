@@ -46,18 +46,16 @@
 
 <h2>🍽 Новая бронь</h2>
 
-<div id="booking-card" class="card hidden">
-    <div class="row"><b>Имя:</b> Иван</div>
-    <div class="row"><b>Телефон:</b> +7 999 123-45-67</div>
-    <div class="row"><b>Гостей:</b> 4</div>
-    <div class="row"><b>Дата:</b> 20 января, 18:00</div>
-</div>
+<!-- Контейнер для карточек бронирования -->
+<div id="bookings-container"></div>
 
+<!-- Кнопки подтверждения/отмены (можно использовать для выбора одного бронирования) -->
 <div id="buttons" class="hidden">
     <button class="confirm" onclick="confirmBooking()">✅ Подтвердить</button>
     <button class="cancel" onclick="cancelBooking()">❌ Отменить</button>
 </div>
 
+<!-- Сообщение о доступе запрещён -->
 <div id="access-denied" class="hidden">
     <h2>❌ Доступ запрещён</h2>
     <p>Открыть миниапп можно только через Telegram с разрешённым аккаунтом.</p>
@@ -68,11 +66,12 @@ const tg = Telegram.WebApp;
 tg.expand();
 
 // Список разрешённых chat_id
-const allowedChatIds = [438913614];
+const allowedChatIds = [438913614]; // замените на свои
 
-// Парсим initData
+// Функция парсинга initData из Telegram Web App
 function parseInitData(str) {
     const obj = {};
+    if(!str) return obj;
     str.split("&").forEach(pair => {
         const [key, value] = pair.split("=");
         obj[key] = decodeURIComponent(value || "");
@@ -83,30 +82,64 @@ function parseInitData(str) {
 const initData = tg.initData;
 const data = parseInitData(initData);
 
+// Проверяем наличие initData и разрешённый chat_id
+if (!initData) {
+    document.body.innerHTML = "<h2>❌ Откройте миниапп через Telegram</h2>";
+    tg.close();
+} else if (!allowedChatIds.includes(Number(data['chat.id']))) {
+    document.body.innerHTML = "<h2>❌ Доступ запрещён</h2>";
+    tg.close();
+} else {
+    // Доступ разрешён — загружаем бронирования через бота
+    fetch("https://your-bot-server.com/get_bookings", { // <-- тут URL бота
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({chat_id: Number(data['chat.id'])})
+    })
+    .then(res => res.json())
+    .then(bookings => {
+        if(bookings.error){
+            document.body.innerHTML = "<h2>❌ Доступ запрещён</h2>";
+            tg.close();
+            return;
+        }
 
-    // Доступ разрешён — загружаем бронирования из Django
-    fetch("http://127.0.0.1:8000/api/bookings/")
-        .then(res => res.json())
-        .then(bookings => {
-            const container = document.getElementById("bookings-container");
-            bookings.forEach(b => {
-                const card = document.createElement("div");
-                card.className = "card";
-                card.innerHTML = `
-                    <div class="row"><b>Имя:</b> ${b.first_name} ${b.last_name}</div>
-                    <div class="row"><b>Телефон:</b> ${b.phone}</div>
-                    <div class="row"><b>Гостей:</b> ${b.guests}</div>
-                    <div class="row"><b>Зал:</b> ${b.hall}</div>
-                    <div class="row"><b>Комментарии:</b> ${b.comments}</div>
-                    <div class="row"><b>Создано:</b> ${b.created_at}</div>
-                `;
-                container.appendChild(card);
-            });
-        })
-        .catch(err => console.error("Ошибка загрузки бронирований:", err));
+        const container = document.getElementById("bookings-container");
 
+        bookings.forEach(b => {
+            const card = document.createElement("div");
+            card.className = "card";
+            card.innerHTML = `
+                <div class="row"><b>Имя:</b> ${b.first_name} ${b.last_name}</div>
+                <div class="row"><b>Телефон:</b> ${b.phone}</div>
+                <div class="row"><b>Гостей:</b> ${b.guests}</div>
+                <div class="row"><b>Зал:</b> ${b.hall}</div>
+                <div class="row"><b>Комментарии:</b> ${b.comments}</div>
+                <div class="row"><b>Создано:</b> ${b.created_at}</div>
+            `;
+            container.appendChild(card);
+        });
+
+        // Показываем кнопки, если нужно
+        document.getElementById("buttons").classList.remove("hidden");
+    })
+    .catch(err => {
+        console.error("Ошибка загрузки бронирований:", err);
+        document.body.innerHTML = "<h2>❌ Ошибка загрузки данных</h2>";
+    });
+}
+
+// Функции для кнопок
+function confirmBooking() {
+    alert("Бронь подтверждена (пока мок)");
+    tg.close();
+}
+
+function cancelBooking() {
+    alert("Бронь отменена (пока мок)");
+    tg.close();
+}
 </script>
-
 
 </body>
 </html>
