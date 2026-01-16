@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Бронирование</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            margin: 16px;
+            background: var(--tg-theme-bg-color);
+            color: var(--tg-theme-text-color);
+        }
+
+        .card {
+            background: var(--tg-theme-secondary-bg-color);
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+
+        .row {
+            margin-bottom: 8px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 8px;
+            font-size: 16px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .confirm {
+            background: #31b545;
+            color: white;
+        }
+
+        .cancel {
+            background: #e5484d;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+<h2>🍽 Новая бронь</h2>
+
+<div class="card">
+    <div class="row"><b>Имя:</b> Иван</div>
+    <div class="row"><b>Телефон:</b> +7 999 123-45-67</div>
+    <div class="row"><b>Гостей:</b> 4</div>
+    <div class="row"><b>Дата:</b> 20 января, 18:00</div>
+</div>
+
+<button class="confirm" onclick="confirmBooking()">✅ Подтвердить</button>
+<button class="cancel" onclick="cancelBooking()">❌ Отменить</button>
+
+<script>
+    const tg = Telegram.WebApp;
+    tg.expand();
+
+    function confirmBooking() {
+        alert("Бронь подтверждена (пока мок)");
+        tg.close();
+    }
+
+    function cancelBooking() {
+        alert("Бронь отменена (пока мок)");
+        tg.close();
+    }
+</script>
+
+</body>
+</html>
