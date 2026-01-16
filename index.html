@@ -85,7 +85,7 @@ const data = parseInitData(initData);
 // Проверяем наличие initData и разрешённый chat_id
 
     // Доступ разрешён — загружаем бронирования через бота
-    fetch("https://your-bot-server.com/get_bookings", { // <-- тут URL бота
+    fetch("https:///api.telegram.org/bot7431878295:AAEjtL1IrsfHOt9-nZ7l5qefndJGLG1Phek/get_bookings", { // <-- тут URL бота
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({chat_id: Number(data['chat.id'])})
