@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <title>Бронирование</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
     <style>
         body {
             font-family: system-ui, sans-serif;
@@ -12,18 +11,15 @@
             background: var(--tg-theme-bg-color);
             color: var(--tg-theme-text-color);
         }
-
         .card {
             background: var(--tg-theme-secondary-bg-color);
             padding: 16px;
             border-radius: 12px;
             margin-bottom: 16px;
         }
-
         .row {
             margin-bottom: 8px;
         }
-
         button {
             width: 100%;
             padding: 12px;
@@ -33,15 +29,16 @@
             border-radius: 10px;
             cursor: pointer;
         }
-
         .confirm {
             background: #31b545;
             color: white;
         }
-
         .cancel {
             background: #e5484d;
             color: white;
+        }
+        .hidden {
+            display: none;
         }
     </style>
 </head>
@@ -49,19 +46,52 @@
 
 <h2>🍽 Новая бронь</h2>
 
-<div class="card">
+<div id="booking-card" class="card hidden">
     <div class="row"><b>Имя:</b> Иван</div>
     <div class="row"><b>Телефон:</b> +7 999 123-45-67</div>
     <div class="row"><b>Гостей:</b> 4</div>
     <div class="row"><b>Дата:</b> 20 января, 18:00</div>
 </div>
 
-<button class="confirm" onclick="confirmBooking()">✅ Подтвердить</button>
-<button class="cancel" onclick="cancelBooking()">❌ Отменить</button>
+<div id="buttons" class="hidden">
+    <button class="confirm" onclick="confirmBooking()">✅ Подтвердить</button>
+    <button class="cancel" onclick="cancelBooking()">❌ Отменить</button>
+</div>
+
+<div id="access-denied" class="hidden">
+    <h2>❌ Доступ запрещён</h2>
+    <p>Открыть миниапп можно только через Telegram с разрешённым аккаунтом.</p>
+</div>
 
 <script>
     const tg = Telegram.WebApp;
     tg.expand();
+
+    // Список разрешённых chat_id
+    const allowedChatIds = [438913614]; // замените на свои
+
+    // Парсим initData
+    function parseInitData(str) {
+        const obj = {};
+        str.split("&").forEach(pair => {
+            const [key, value] = pair.split("=");
+            obj[key] = decodeURIComponent(value || "");
+        });
+        return obj;
+    }
+
+    const initData = tg.initData;
+    const data = parseInitData(initData);
+
+    if (allowedChatIds.includes(Number(data['chat.id']))) {
+        // Разрешено
+        document.getElementById("booking-card").classList.remove("hidden");
+        document.getElementById("buttons").classList.remove("hidden");
+    } else {
+        // Доступ запрещён
+        document.getElementById("access-denied").classList.remove("hidden");
+        tg.close(); // опционально можно закрыть Web App
+    }
 
     function confirmBooking() {
         alert("Бронь подтверждена (пока мок)");
