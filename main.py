@@ -5,14 +5,12 @@ import json
 import logging
 
 # ================= CONFIG =================
-BOT_TOKEN = "7431878295:AAEjtL1IrsfHOt9-nZ7l5qefndJGLG1Phek"
-MINI_APP_URL = "https://bf33b6466fa.vps.myjino.ru/admin/TelegramMiniApp"
+BOT_TOKEN = ""
+MINI_APP_URL = ""
 
-# 👉 ПРОКСИ (замени на свой)
-PROXY_URL = "http://R4B9dJVc:2JbSgahp@136.234.150.56:63840"
-# пример:
-# PROXY_URL = "http://127.0.0.1:8080"
-# PROXY_URL = "socks5://127.0.0.1:9050"
+
+PROXY_URL = ""
+
 
 # ==========================================
 
@@ -20,7 +18,7 @@ PROXY_URL = "http://R4B9dJVc:2JbSgahp@136.234.150.56:63840"
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# 🔥 Подключаем прокси
+
 apihelper.proxy = {
     "http": PROXY_URL,
     "https": PROXY_URL,
@@ -39,14 +37,14 @@ def start(message):
 
         web_app = WebAppInfo(url=MINI_APP_URL)
         button = KeyboardButton(
-            text="🍽 Открыть Mini App",
+            text="Открыть заявки",
             web_app=web_app
         )
         kb.add(button)
 
         bot.send_message(
             message.chat.id,
-            "Панель сотрудников ресторана 👇",
+            'Для просмотра заявок, нажмите на кнопку "Открыть заявки"',
             reply_markup=kb
         )
 
